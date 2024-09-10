@@ -34,9 +34,12 @@
                     <td>{{ $task->title }}</td>
                     <td>{{ $task->status ? 'Done' : 'Pending' }}</td>
                     <td>
+                        @if ($task->status == 0)
                         <button class="btn btn-success btn-sm toggle-status" data-id="{{ $task->id }}">
                             &#x2714;
                         </button>
+                        @endif
+                        
                         <button class="btn btn-danger btn-sm delete-task" data-id="{{ $task->id }}">
                             &#x2716;
                         </button>
@@ -68,18 +71,20 @@
                     if(response.status == true) {
                         $('#statusResp').empty().html('<div class="alert alert-success">'+response.success+'</div>');
                         $('#task-title').val('');
-                    
-                        $('#task-list').append(
-                            `<tr id="task-${response.data.id}">
+                        $html = ``;
+                        $html = `<tr id="task-${response.data.id}">
                                 <td>${response.data.id}</td>
                                 <td>${response.data.title}</td>
                                 <td>${response.data.status ? 'Done' : 'Pending'}</td>
-                                <td>
-                                    <button class="btn btn-success btn-sm toggle-status" data-id="${response.data.id}">&#x2714;</button>
-                                    <button class="btn btn-danger btn-sm delete-task" data-id="${response.data.id}">&#x2716;</button>
+                                <td>`;
+                                    if(response.data.status == 0){
+                                        $html += `<button class="btn btn-success btn-sm toggle-status" data-id="${response.data.id}">&#x2714;</button>`;
+                                    }
+                                    
+                                    $html += `<button class="btn btn-danger btn-sm delete-task" data-id="${response.data.id}">&#x2716;</button>
                                 </td>
                             </tr>`
-                        );
+                        $('#task-list').append($html);
                         attachEventListeners();
                     } else {
                         $('#statusResp').empty().html('<div class="alert alert-danger">Error in creating task!!</div>');
@@ -106,6 +111,10 @@
                         if(response.status == true) {
                             $('#statusResp').empty().html('<div class="alert alert-info"><b>'+response.data.title+'</b> task successfully updated.</div>');
                             $(`#task-${id} td:nth-child(3)`).text(response.data.status ? 'Done' : 'Pending');
+                            $remove = $(".toggle-status");
+                            if($remove.attr("data-id") == id) {
+                                $remove.remove();
+                            }
                         } else {
                             $('#statusResp').empty().html('<div class="alert alert-danger">Error in updating task!!</div>');
                         }
